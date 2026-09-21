@@ -14,7 +14,7 @@ client = OpenAI(
 )
 
 # Text jo hum API ko bhejein ge
-user_message = "What is the difference between a Token and a Context Window in LLMs? Explain in 2 simple lines."
+user_message = "I am going to my village after a long time to meet my grandfather and ask his condition. Write an email to my boss asking for leaves. Email should contains 70 to 100 words and it should be professional and format must formall."
 
 # ==========================================
 # 1. TIKTOKEN SE TOKEN COUNTING KRNA
@@ -41,7 +41,7 @@ try:
             {"role": "user", "content": user_message}
         ],
         temperature=0.5, # Creativity aur factualness k darmiyan balance
-        max_tokens=300
+        max_tokens=1000
     )
 
     print(response.choices[0].message.content)
