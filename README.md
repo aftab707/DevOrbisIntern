@@ -105,3 +105,23 @@ cd DevOrbisIntern
 * Built the UI using React components and hooks (`useState`, `useEffect`).
 * Connected the frontend to the backend using **Axios**, successfully testing end-to-end data fetching and form submissions.
 * Added inline editing capabilities for full frontend CRUD functionality.
+
+### Week 2 - Day 1: LLM Landscape & API Integration
+* Explored the LLM API Landscape and successfully integrated the Groq API (OpenAI SDK standard) to run inference programmatically.
+* Implemented the `tiktoken` library for accurate token counting and request size estimation before executing API calls.
+* Configured core model hyperparameters, specifically tuning `temperature` for factual vs. creative outputs and managing `max_tokens` to prevent response cut-offs.
+
+### Week 2 - Day 2: Prompt Engineering Principles
+* Mastered Prompt Engineering fundamentals including System vs. User messages and Role-based prompting (personas).
+* Applied the C.T.C.F (Context, Task, Constraints, Format) framework to systematically structure and improve vague prompts.
+* Conducted prompt-fixing exercises to evaluate how constraint-rich instructions change LLM outputs.
+
+### Week 2 - Day 3: Few-Shot Prompting & Templates
+* Transitioned from zero-shot to Few-Shot prompting patterns to dictate strict output formatting to the AI.
+* Developed a reusable prompt template architecture using `prompts.json` to cleanly decouple prompt text from the core Python application logic.
+* Dynamically formatted template variables in Python to build modular LLM requests.
+
+### Week 2 - Day 4: Structured JSON Output
+* Designed strict data extraction schemas using `Pydantic` (`BaseModel`) to transform unstructured text into structured, predictable data.
+* Enforced Structured JSON Output by integrating the `instructor` library.
+* Implemented function-calling patterns, automatic Pydantic validation, and `retry-on-invalid` error handling for deterministic tasks.
