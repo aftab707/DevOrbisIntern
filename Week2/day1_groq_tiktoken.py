@@ -4,25 +4,25 @@ from openai import OpenAI
 from dotenv import load_dotenv
 load_dotenv()
 
-# Apna Groq API key yahan dalein ya .env file mein set krein
+# Insert your Groq API key here or set it in the .env file
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# Groq OpenAI k standard ko support krta hai, is liye hum OpenAI library hi use krein ge
+# Groq supports the OpenAI standard, so we will use the standard OpenAI library
 client = OpenAI(
     api_key=GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1"
 )
 
-# Text jo hum API ko bhejein ge
+# The text we will send to the API
 user_message = "I am going to my village after a long time to meet my grandfather and ask his condition. Write an email to my boss asking for leaves. Email should contains 70 to 100 words and it should be professional and format must formall."
 
 # ==========================================
-# 1. TIKTOKEN SE TOKEN COUNTING KRNA
+# 1. COUNTING TOKENS WITH TIKTOKEN
 # ==========================================
 print("--- Token Counting ---")
-# Note: tiktoken OpenAI ka tokenizer hai. Groq (Llama 3) ka token count thora sa different ho skta hai, 
-# lekin tiktoken cost aur size estimation k liye industry standard hai.
-encoding = tiktoken.get_encoding("cl100k_base") # Modern models k liye default encoding
+# Note: tiktoken is OpenAI's tokenizer. Groq's (Llama 3) token count might be slightly different, 
+# but tiktoken remains the industry standard for cost and size estimation.
+encoding = tiktoken.get_encoding("cl100k_base") # Default encoding for modern models
 tokens = encoding.encode(user_message)
 token_count = len(tokens)
 
@@ -30,27 +30,27 @@ print(f"Total Words: {len(user_message.split())}")
 print(f"Estimated Tokens: {token_count}\n")
 
 # ==========================================
-# 2. GROQ API CALL KRNA
+# 2. MAKING THE GROQ API CALL
 # ==========================================
 print("--- Groq API Response ---")
 try:
     response = client.chat.completions.create(
-        model="openai/gpt-oss-20b", # Groq ka supported model
+        model="openai/gpt-oss-20b", # A supported model on Groq
         messages=[
             {"role": "system", "content": "You are a helpful and clear AI assistant."},
             {"role": "user", "content": user_message}
         ],
-        temperature=0.5, # Creativity aur factualness k darmiyan balance
+        temperature=0.5, # Balance between creativity and factualness
         max_tokens=1000
     )
 
     print(response.choices[0].message.content)
     
-    # Hum Groq ki taraf se return kiye gye actual token usage bhi dekh skte hain
+    # We can also view the actual token usage returned by Groq
     print("\n--- Actual Usage (from Groq) ---")
     print(f"Prompt Tokens: {response.usage.prompt_tokens}")
     print(f"Completion Tokens: {response.usage.completion_tokens}")
     print(f"Total Tokens: {response.usage.total_tokens}")
 
 except Exception as e:
-    print(f"Error: API call fail ho gyi. PLease check your API key. Detail: {e}")
+    print(f"Error: API call failed. Please check your API key. Detail: {e}")
