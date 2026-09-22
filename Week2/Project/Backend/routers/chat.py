@@ -35,7 +35,7 @@ async def chat_stream(request: ChatRequest):
     def generate_chat():
         try:
             response = standard_client.chat.completions.create(
-                model="llama3-8b-8192",
+                model="openai/gpt-oss-20b",
                 messages=api_messages,
                 temperature=0.7, 
                 stream=True      
