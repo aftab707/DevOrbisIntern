@@ -8,6 +8,20 @@ const generateToken = (id) => {
     });
 };
 
+// Helper function to validate email format
+const isValidEmail = (email) => {
+    // Requires a proper domain and a TLD of at least 2 alphabetical characters
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+};
+
+// Helper function to validate password strength
+const isValidPassword = (password) => {
+    // Requires: at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+};
+
 // @desc    Register a new user
 // @route   POST /api/users/register
 // @access  Public
@@ -18,6 +32,18 @@ const registerUser = async (req, res) => {
         // Validation: Ensure all fields are provided
         if (!name || !email || !password) {
             return res.status(400).json({ message: 'Please provide all fields (name, email, password)' });
+        }
+
+        // Validation: Check email format
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ message: 'Please provide a valid email address (e.g., example@domain.com)' });
+        }
+
+        // Validation: Check password strength
+        if (!isValidPassword(password)) {
+            return res.status(400).json({ 
+                message: 'Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one number, and one special character.' 
+            });
         }
 
         // Check if a user with this email already exists

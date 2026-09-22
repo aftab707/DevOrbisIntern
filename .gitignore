@@ -1,4 +1,33 @@
+# =========================
+# Node.js / React Frontend
+# =========================
 node_modules/
+dist/
+build/
+.npm/
+
+# =========================
+# Python / FastAPI Backend
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+week2env/
+venv/
+env/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# OS / Other Files
+# =========================
+.DS_Store
+*.log
 *.pdf
 *.txt
-*.env
