@@ -1,10 +1,51 @@
-# DevOrbis AI Intern Training Program - Week 1
+# DevOrbis AI Intern Training Program
 
 Welcome to my repository for the DevOrbis AI Intern Training Program. This repository contains my progress, daily learning logs, and the final weekly projects.
 
 ---
 
-## 🎯 Week1 Project: TaskTrack (Full-Stack Task Manager)
+## 🎯 Week 3 Project: DocuChat (Enterprise RAG Knowledge Base)
+
+DocuChat is a production-ready Retrieval-Augmented Generation (RAG) application built as the final deliverable for Week 3. It allows users to upload PDF documents, store their mathematical embeddings in a dual-database architecture, and ask questions based strictly on the uploaded knowledge base.
+
+### Features
+* **Dual Vector Database Architecture:** Uses Supabase `pgvector` as the primary cloud database and local FAISS as an automatic fallback mechanism for high availability.
+* **Semantic Document Parsing:** Uploaded PDFs are parsed, semantically chunked, and vectorized using Hugging Face embeddings (`BAAI/bge-small-en-v1.5`).
+* **Grounded AI Responses & Citations:** The Groq-powered LLM explicitly refuses to answer out-of-scope questions (hallucination control) and provides strict inline citations linking back to the exact document chunk.
+* **Premium UI/UX:** A distinct, ChatGPT-inspired React interface featuring a dedicated Knowledge Base management tab and an interactive Chat tab with detailed processing states.
+
+### Tech Stack
+* **FastAPI & Python** (Backend Framework)
+* **React.js & Vite** (Frontend UI)
+* **Supabase pgvector** (Primary Vector Store)
+* **FAISS** (Fallback Vector Store)
+* **Groq / Llama 3** (LLM Provider)
+* **SentenceTransformers** (Embedding Generation)
+* **PyPDF** (Document Parsing)
+
+---
+
+## 🎯 Week 2 Project: Smart Extractor & Streaming Chat Service
+
+The Week 2 Capstone Project is a production-grade AI application integrating a FastAPI backend with a modern React frontend. It features real-time streaming chatbot capabilities and structured JSON data extraction.
+
+### Features
+* **Modular FastAPI Architecture:** Built with professional separation of concerns (Routers, Schemas, Services).
+* **Streaming Chatbot:** Real-time word-by-word streaming using Server-Sent Events (SSE).
+* **Smart Data Extraction:** Converts messy, unstructured text (e.g., CVs, invoices) into strict JSON schemas using `Pydantic` and `Instructor`.
+* **Decoupled Prompt Library:** System personas and Few-Shot examples are dynamically loaded from an external `prompts.json` file.
+* **Resiliency & Token Tracking:** Implemented `retry-on-invalid` logic for flawless API extraction and real-time LLM cost/token logging.
+* **Modern React UI:** Dual-panel dashboard with glassmorphism design, native `ReadableStream` parsing, and dynamic component rendering.
+
+### Tech Stack
+* **Python & FastAPI** (Backend Framework)
+* **Groq / Llama 3** (LLM Provider)
+* **Instructor & Pydantic** (Validation & Schemas)
+* **React.js (Vite)** (Frontend UI)
+
+---
+
+## 🎯 Week 1 Project: TaskTrack (Full-Stack Task Manager)
 
 TaskTrack is a complete, production-ready MERN stack application built as the final deliverable for Week 1. It allows users to register, securely log in, and manage their personal tasks. 
 
@@ -125,3 +166,39 @@ cd DevOrbisIntern
 * Designed strict data extraction schemas using `Pydantic` (`BaseModel`) to transform unstructured text into structured, predictable data.
 * Enforced Structured JSON Output by integrating the `instructor` library.
 * Implemented function-calling patterns, automatic Pydantic validation, and `retry-on-invalid` error handling for deterministic tasks.
+
+### Week 2 - Day 5: Streaming, Modular Architecture & Capstone Project
+* **Architected** a production-ready, modular FastAPI backend for the Week 2 Capstone Project (Routers, Pydantic Schemas, External Services).
+* **Developed** a high-performance `/chat` REST endpoint leveraging **Server-Sent Events (SSE)** to stream LLM responses word-by-word.
+* **Engineered** a strictly validated `/extract` endpoint using `Pydantic` and `Instructor`, securely decoupling system personas and Few-Shot examples into a `prompts.json` library.
+* **Built** a modern, responsive React dashboard UI containing two primary modules: a Streaming Chatbot and a Smart Data Extractor.
+* **Implemented** native browser APIs (`ReadableStream`, `TextDecoder`) on the React frontend to parse raw data chunks and progressively render streaming API responses into state.
+* **Debugged and Resolved** a complex React Strict Mode state-mutation bug to ensure flawless, non-duplicating typing animations during stream rendering.
+* **Secured** the repository by configuring a comprehensive Monorepo `.gitignore`, strictly excluding API keys (`.env`), `node_modules`, and Python virtual environments (`week2env`).
+
+### Week 3 - Day 1: Embeddings & FAISS
+* Explored the mathematical foundations of vector embeddings and cosine similarity.
+* Generated vector embeddings using Hugging Face's `sentence-transformers`.
+* Built a localized vector search engine using Facebook AI Similarity Search (FAISS) over static text snippets.
+
+### Week 3 - Day 2: Document Processing & Chunking
+* Built pipelines to extract and parse raw text from PDF documents using `pypdf`.
+* Designed semantic chunking strategies (e.g., fixed-size chunking) and analyzed the trade-offs of chunk size and overlap on retrieval accuracy.
+* Generated structured metadata (source filename, chunk ID) to map embeddings back to human-readable text.
+
+### Week 3 - Day 3: Supabase & pgvector
+* Transitioned from local storage to cloud storage by provisioning a Supabase PostgreSQL database.
+* Enabled the `pgvector` extension and configured the `documents` table to store 384-dimensional vectors.
+* Executed similarity queries via SQL RPCs (`match_documents`) and connected the backend using the Supabase Python client.
+
+### Week 3 - Day 4: RAG Prompting & Hallucination Control
+* Architected the core RAG prompt pattern: dynamically injecting retrieved context and enforcing grounding instructions.
+* Implemented strict hallucination control mechanisms, forcing the LLM to explicitly refuse to answer questions not covered by the documents.
+* Designed the system to return precise source citations alongside the AI's generated response.
+
+### Week 3 - Day 5: DocuChat Project Integration
+* **Architected** a highly resilient FastAPI backend utilizing a try/except routing pattern to query Supabase first, seamlessly falling back to local FAISS storage.
+* **Developed** a centralized `/upload` endpoint to handle file ingestion, parsing, chunking, and dual-database embedding storage.
+* **Engineered** a `/chat` endpoint that strictly enforces RAG prompting and extracts dynamic citation metadata.
+* **Designed** a premium, interactive React SPA (Single Page Application) with separate views for Knowledge Base Management and AI Chat.
+* **Implemented** a dual-database wipe mechanism (`/clear`) for seamless local testing.

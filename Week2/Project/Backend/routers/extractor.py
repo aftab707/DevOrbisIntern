@@ -35,7 +35,7 @@ def extract_information(request: ExtractRequest):
         })
 
         extracted_data, raw_response = instructor_client.chat.completions.create_with_completion(
-            model="llama3-8b-8192", 
+            model="openai/gpt-oss-20b", 
             response_model=ExtractedCVData,
             messages=messages,
             temperature=0.0,

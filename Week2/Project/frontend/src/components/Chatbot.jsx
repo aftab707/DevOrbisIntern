@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { API_BASE_URL } from '../services/api';
 
 const Chatbot = () => {
@@ -7,7 +8,6 @@ const Chatbot = () => {
     const [isStreaming, setIsStreaming] = useState(false);
     const messagesEndRef = useRef(null);
 
-    // Auto-scroll to bottom of chat
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
@@ -23,7 +23,6 @@ const Chatbot = () => {
         setIsStreaming(true);
 
         try {
-            // We use standard fetch here to process the raw stream
             const response = await fetch(`${API_BASE_URL}/chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -35,7 +34,6 @@ const Chatbot = () => {
             const reader = response.body.getReader();
             const decoder = new TextDecoder("utf-8");
             
-            // Add an empty assistant message to the UI that we will populate word-by-word
             setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
             while (true) {
@@ -44,7 +42,6 @@ const Chatbot = () => {
                 
                 const chunkText = decoder.decode(value, { stream: true });
                 
-                // Update the very last message safely (avoiding Strict Mode double mutation)
                 setMessages((prev) => {
                     const updatedMessages = [...prev];
                     const lastIndex = updatedMessages.length - 1;
@@ -64,15 +61,17 @@ const Chatbot = () => {
 
     return (
         <div className="card chat-container">
-            <h2> Streaming AI Chat</h2>
+            <div className="card-header">
+                <h2>Streaming AI Chat</h2>
+            </div>
             
             <div className="chat-box">
-                {messages.length === 0 && <p className="placeholder-text">Say hello to start chatting!</p>}
+                {messages.length === 0 && <p className="placeholder-text">Type a message to begin the conversation.</p>}
                 
                 {messages.map((msg, index) => (
                     <div key={index} className={`message-row ${msg.role === 'user' ? 'user-row' : 'bot-row'}`}>
                         <div className={`message-bubble ${msg.role}`}>
-                            {msg.content}
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
                         </div>
                     </div>
                 ))}
