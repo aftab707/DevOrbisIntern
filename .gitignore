@@ -13,9 +13,12 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-week2env/
+week*env/
 venv/
+.venv/
 env/
+.env_dir/
+
 
 # =========================
 # Environment Variables
