@@ -17,6 +17,8 @@ def get_embeddings():
     )
 
 
+import math
+
 _BINARY_OPERATORS = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
@@ -27,6 +29,12 @@ _BINARY_OPERATORS = {
     ast.Pow: operator.pow,
 }
 _UNARY_OPERATORS = {ast.UAdd: operator.pos, ast.USub: operator.neg}
+
+# Supported mathematical functions and constants
+_MATH_FUNCTIONS = {
+    k: v for k, v in math.__dict__.items() if not k.startswith("__")
+}
+
 _LEGACY_SOURCE_MARKER = re.compile(r"^\[source: (?P<source>.+?) \| page: (?P<page>\d+)\]\s*", re.IGNORECASE)
 
 
@@ -35,9 +43,30 @@ def _calculate(node):
         return _calculate(node.body)
     if isinstance(node, ast.Constant) and type(node.value) in (int, float):
         return node.value
+    if isinstance(node, ast.Name):
+        if node.id in _MATH_FUNCTIONS and isinstance(_MATH_FUNCTIONS[node.id], (int, float)):
+            return _MATH_FUNCTIONS[node.id]
+        raise ValueError(f"Unsupported variable or constant: {node.id}")
+    if isinstance(node, ast.Call):
+        if isinstance(node.func, ast.Name) and node.func.id in _MATH_FUNCTIONS:
+            func = _MATH_FUNCTIONS[node.func.id]
+            if not callable(func):
+                raise ValueError(f"'{node.func.id}' is not callable.")
+            args = [_calculate(arg) for arg in node.args]
+            return func(*args)
+        if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and node.func.value.id == "math":
+            if node.func.attr in _MATH_FUNCTIONS:
+                func = _MATH_FUNCTIONS[node.func.attr]
+                if callable(func):
+                    args = [_calculate(arg) for arg in node.args]
+                    return func(*args)
+        raise ValueError(f"Unsupported function call.")
+    if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id == "math":
+        if node.attr in _MATH_FUNCTIONS and isinstance(_MATH_FUNCTIONS[node.attr], (int, float)):
+            return _MATH_FUNCTIONS[node.attr]
     if isinstance(node, ast.BinOp) and type(node.op) in _BINARY_OPERATORS:
         left, right = _calculate(node.left), _calculate(node.right)
-        if isinstance(node.op, ast.Pow) and abs(right) > 8:
+        if isinstance(node.op, ast.Pow) and abs(right) > 100:
             raise ValueError("Exponent is too large.")
         result = _BINARY_OPERATORS[type(node.op)](left, right)
         if abs(result) > 1e15:
@@ -45,12 +74,12 @@ def _calculate(node):
         return result
     if isinstance(node, ast.UnaryOp) and type(node.op) in _UNARY_OPERATORS:
         return _UNARY_OPERATORS[type(node.op)](_calculate(node.operand))
-    raise ValueError("Only basic arithmetic is supported.")
+    raise ValueError("Only basic arithmetic and math functions are supported.")
 
 
 @tool
 def calculator(expression: str) -> str:
-    """Calculate a basic arithmetic expression. Use only for arithmetic; supports +, -, *, /, //, %, ** and parentheses. Example: 15 + 25 * 3."""
+    """Calculate a mathematical expression. Supports basic arithmetic and standard math functions (sin, cos, tan, log, sqrt, pi, e, radians, etc.). Note: trigonometric functions expect radians. Example: sin(radians(45)) + 15 * 3."""
     try:
         if len(expression) > 200:
             raise ValueError("Expression is too long.")

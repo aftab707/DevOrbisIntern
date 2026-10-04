@@ -18,10 +18,11 @@ export const startNewConversation = () => {
   return sessionId;
 };
 
-export const chatWithAgent = async (message, sessionId = getSessionId()) => {
+export const chatWithAgent = async (message, toolChoice = "auto", sessionId = getSessionId()) => {
   const response = await axios.post(`${API_BASE_URL}/chat`, {
     message,
-    session_id: sessionId
+    session_id: sessionId,
+    tool_choice: toolChoice
   });
   return response.data;
 };

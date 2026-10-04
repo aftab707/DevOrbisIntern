@@ -4,6 +4,7 @@ from typing import List, Optional
 class ChatRequest(BaseModel):
     message: str
     session_id: str = "default_session"
+    tool_choice: Optional[str] = "auto"
 
 class ChatResponse(BaseModel):
     response: str

@@ -1,6 +1,6 @@
 from typing import Annotated, TypedDict
 
-from langchain_core.messages import BaseMessage, SystemMessage
+from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage
 from langchain_groq import ChatGroq
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
@@ -13,6 +13,7 @@ from agent.tools import all_tools, safe_tools, sensitive_tools
 
 class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
+    tool_choice: str
 
 
 llm = ChatGroq(model="openai/gpt-oss-20b", temperature=0)
@@ -20,10 +21,45 @@ llm_with_tools = llm.bind_tools(all_tools, parallel_tool_calls=False)
 
 
 def chatbot_node(state: AgentState):
-    messages = state["messages"]
-    if not messages or not isinstance(messages[0], SystemMessage):
-        messages = [SystemMessage(content=OPS_AGENT_SYSTEM_PROMPT), *messages]
-    return {"messages": [llm_with_tools.invoke(messages)]}
+    messages = list(state["messages"])
+    choice = state.get("tool_choice", "auto")
+    
+    if choice and choice != "auto":
+        # Consolidate email tools if selected from UI
+        if choice == "email":
+            allowed_tools = [t for t in all_tools if t.name in ["draft_email", "send_email"]]
+        else:
+            allowed_tools = [t for t in all_tools if t.name == choice]
+            
+        tool_names = [t.name for t in allowed_tools]
+        
+        dynamic_sys_prompt = (
+            f"You are the Ops Assistant Agent. The user has STRICTLY restricted you to use ONLY the following tool(s): {', '.join(tool_names)}.\n\n"
+            f"CRITICAL RULES:\n"
+            f"1. DO NOT USE YOUR GENERAL KNOWLEDGE. You must act ONLY as an interface for the '{choice}' tool.\n"
+            f"2. If the user asks for math, email drafting, or client data, and you DO NOT have the required tool for it, YOU MUST REFUSE. Do not calculate math in your head. Do not draft emails in plain text. Reply exactly: 'You have restricted me to the {choice} tool, which does not support this functionality. Please select the appropriate tool from the dropdown or switch to Auto-Select.'\n"
+            f"3. If the query might be related to {choice}, call the tool. If the tool returns 'No results', DO NOT fill in the blanks from memory. Reply that the data was not found using the {choice} tool."
+        )
+        
+        # To prevent Groq API 400 BadRequestErrors (caused by strict tool history validation)
+        # and to prevent the agent from leaking history, we ONLY pass the current interaction turn.
+        current_turn = []
+        for msg in reversed(messages):
+            if isinstance(msg, SystemMessage):
+                continue
+            current_turn.insert(0, msg)
+            if isinstance(msg, HumanMessage):
+                break
+                
+        messages = [SystemMessage(content=dynamic_sys_prompt)] + current_turn
+            
+        bound_llm = llm.bind_tools(allowed_tools, parallel_tool_calls=False)
+    else:
+        if not messages or not isinstance(messages[0], SystemMessage):
+            messages = [SystemMessage(content=OPS_AGENT_SYSTEM_PROMPT)] + messages
+        bound_llm = llm_with_tools
+        
+    return {"messages": [bound_llm.invoke(messages)], "tool_choice": "auto"}
 
 
 def route_tools(state: AgentState):

@@ -64,7 +64,11 @@ def _store_document_rows(rows, filename):
 async def chat_endpoint(req: ChatRequest):
     config = _graph_config(req.session_id)
     try:
-        events = agent_graph.stream({"messages": [HumanMessage(content=req.message)]}, config=config, stream_mode="values")
+        events = agent_graph.stream(
+            {"messages": [HumanMessage(content=req.message)], "tool_choice": req.tool_choice or "auto"}, 
+            config=config, 
+            stream_mode="values"
+        )
         latest_message = None
         for event in events:
             latest_message = event["messages"][-1]
