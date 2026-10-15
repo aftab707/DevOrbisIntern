@@ -22,6 +22,11 @@ const taskSchema = new mongoose.Schema({
     },
     dueDate: {
         type: Date
+    },
+    priority: {
+        type: String,
+        enum: ['low', 'medium', 'high'],
+        default: 'medium'
     }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt fields
