@@ -62,8 +62,17 @@ async def chat(request: ChatRequest):
         citations = set()
         
         for doc in documents:
-            context_text += f"\n\n---\n\n{doc['content']}"
-            citations.add(f"{doc['metadata']['source']} (Chunk {doc['metadata']['chunk_id']})")
+            content = doc.get("content", "") if isinstance(doc, dict) else str(doc)
+            context_text += f"\n\n---\n\n{content}"
+            
+            meta = doc.get("metadata", {}) if isinstance(doc, dict) else {}
+            if isinstance(meta, dict):
+                source = meta.get("source", "Document")
+                chunk_id = meta.get("chunk_id", "")
+                cite_str = f"{source} (Chunk {chunk_id})" if chunk_id != "" else str(source)
+                citations.add(cite_str)
+            else:
+                citations.add("Uploaded Document")
 
         # Generate response via LLM service
         answer = generate_rag_response(request.query, context_text)

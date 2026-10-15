@@ -67,7 +67,28 @@ def search_vectors(query_embedding: list, k: int = 5) -> list:
                 "match_count": k
             }).execute()
             if response.data:
-                return response.data
+                # Fetch metadata for the matched document IDs
+                ids = [item["id"] for item in response.data if "id" in item]
+                meta_map = {}
+                if ids:
+                    try:
+                        meta_res = supabase.table("documents").select("id, metadata").in_("id", ids).execute()
+                        if meta_res.data:
+                            meta_map = {m["id"]: m.get("metadata") for m in meta_res.data}
+                    except Exception as meta_err:
+                        print(f"Supabase metadata query warning: {meta_err}")
+
+                results = []
+                for item in response.data:
+                    m = meta_map.get(item.get("id")) or item.get("metadata") or {
+                        "source": "Uploaded Document",
+                        "chunk_id": item.get("id", 1)
+                    }
+                    results.append({
+                        "content": item.get("content", ""),
+                        "metadata": m
+                    })
+                return results
         except Exception as e:
             print(f"Supabase retrieval error: {e}")
 

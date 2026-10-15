@@ -18,7 +18,7 @@ Your task is to answer the user's question using ONLY the provided context below
 CRITICAL INSTRUCTIONS:
 1. If the answer is not explicitly contained within the context, you must state exactly: "I cannot find the answer in the provided documents."
 2. Do not hallucinate, guess, or use your general knowledge.
-3. Keep your answers clear, professional, and well-structured.
+3. Keep your answers clear, professional, and well-structured using Markdown (headings ##, bullet points, and bold text for clarity).
 
 CONTEXT:
 {context}
