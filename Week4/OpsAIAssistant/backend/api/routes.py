@@ -96,9 +96,16 @@ async def approve_endpoint(req: ApprovalRequest):
         else:
             pending_message = state.values["messages"][-1]
             pending_call = pending_message.tool_calls[0]
+            feedback_text = (req.feedback or "").strip()
+            rejection_content = (
+                f"The human executive REJECTED the previous email draft/send.\n"
+                f"Executive Feedback: {feedback_text if feedback_text else 'Please revise the draft.'}\n"
+                f"Required action: Revise the email recipient, subject, and body according to this feedback, "
+                f"and call the send_email tool again with the updated parameters so the human can review and approve."
+            )
             rejection = ToolMessage(
                 tool_call_id=pending_call["id"],
-                content=f"Email send rejected by human. Feedback: {req.feedback or 'No feedback provided.'}",
+                content=rejection_content,
             )
             agent_graph.update_state(config, {"messages": [rejection]}, as_node="sensitive_tools_node")
             events = agent_graph.stream(None, config=config, stream_mode="values")

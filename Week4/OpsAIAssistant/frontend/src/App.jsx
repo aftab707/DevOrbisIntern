@@ -3,6 +3,7 @@ import AdminSidebar from './components/AdminSidebar';
 import ChatInterface from './components/ChatInterface';
 import ApprovalModal from './components/ApprovalModal';
 import { getKnowledgeBaseStatus, startNewConversation } from './services/api';
+import { SparklesIcon, RefreshCwIcon } from './components/Icons';
 import './App.css';
 
 function App() {
@@ -39,7 +40,7 @@ function App() {
     setApprovalCallback(() => callback);
   };
 
-  const handleKnowledgeBaseCleared = () => {
+  const handleNewSession = () => {
     startNewConversation();
     setConversationKey((current) => current + 1);
   };
@@ -49,17 +50,33 @@ function App() {
       <AdminSidebar
         knowledgeBase={knowledgeBase}
         onKnowledgeBaseChange={refreshKnowledgeBase}
-        onKnowledgeBaseCleared={handleKnowledgeBaseCleared}
+        onKnowledgeBaseCleared={handleNewSession}
       />
       <main className="main-content">
         <header className="app-header">
-          <div>
-            <p className="eyebrow">Operations workspace</p>
-            <h2>Good to have you here.</h2>
+          <div className="header-left">
+            <div className="header-breadcrumb">
+              <span>Operations Workspace</span>
+              <span>/</span>
+              <span>Autonomous Copilot</span>
+            </div>
+            <h2 className="header-title">
+              OpsAI Control Center
+            </h2>
           </div>
-          <div className="header-status">
-            <span className="status-dot ready" />
-            Agent online
+          <div className="header-right">
+            <div className="header-status-pill">
+              <span className="status-dot-pulse" />
+              <span>LangGraph Active</span>
+            </div>
+            <button
+              className="new-session-btn"
+              onClick={handleNewSession}
+              title="Start a fresh conversation session"
+            >
+              <RefreshCwIcon size={14} />
+              <span>New Session</span>
+            </button>
           </div>
         </header>
         <ChatInterface key={conversationKey} onRequireApproval={handleRequireApproval} />
